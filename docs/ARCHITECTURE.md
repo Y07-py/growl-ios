@@ -9,10 +9,11 @@ DomainレイヤではGrowlのドメインから抽出されたエンティティ
 - ReposioryProtocols
 
 ## Presentation層
-PrsentationレイヤではGrowlのUIに関するレンダリング処理、および状態管理を行います。
+PrsentationレイヤではGrowlのUIに関するレンダリング処理、および状態管理の制御などUI固有のルールをカプセル化しています。
 
-- ViewModels
-- Views
+- Drivers: UiKit固有のロジック、遷移制御、Window管理、ライフサイクルをカプセル化
+- ViewModels: アプリケーション固有の純粋なロジック、状態管理をカプセル化
+- Views: アプリケーションの宣言的なUIをカプセル化
 
 ## UseCase層
 UseCaseレイヤでは、エンティティや値オブジェクトにまつわるアプリケーション固有のロジックに関する詳細が定義されます。
