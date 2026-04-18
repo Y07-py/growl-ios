@@ -8,6 +8,12 @@
 import SwiftUI
 import Combine
 
+public enum LoginRoute: Equatable {
+    case login
+    case main
+    case waiting
+}
+
 class LoginViewModel: ObservableObject {
     @Published var userName: String = ""
     @Published var mailAddress: String = ""

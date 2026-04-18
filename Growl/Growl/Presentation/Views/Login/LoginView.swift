@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LoginView: View {
-    @StateObject private var loginViewModel: LoginViewModel = .init()
+    @EnvironmentObject private var loginViewModel: LoginViewModel
     
     var body: some View {
         ZStack {

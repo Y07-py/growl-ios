@@ -16,6 +16,7 @@ public enum RouteViewControllerTransitionDirection {
     case left
 }
 
+
 /// `RouteViewController` is a SwiftUI wrapper for `UINavigationController` that manages screen transitions
 /// based on a provided route model. It supports custom directional animations and handles the 
 /// integration between SwiftUI views and UIKit's navigation stack.
@@ -24,16 +25,14 @@ public struct RouteViewController<Route: Equatable, Screen: View>: UIViewControl
     private let hiddenBackButton: Bool
     private let transitionAnimated: Bool
     private let transitionDirection: RouteViewControllerTransitionDirection
-    
-    @ViewBuilder
-    let builder: (Route) -> Screen
+    private let builder: (Route) -> Screen
     
     public init(
         routeViewModel: RouteViewModel<Route>,
         hiddenBackButton: Bool = true,
         transitionAnimated: Bool = true,
         transitionDirection: RouteViewControllerTransitionDirection = .right,
-        builder: @escaping (Route) -> Screen
+        @ViewBuilder builder: @escaping (Route) -> Screen
     ) {
         self.routeViewModel = routeViewModel
         self.hiddenBackButton = hiddenBackButton
