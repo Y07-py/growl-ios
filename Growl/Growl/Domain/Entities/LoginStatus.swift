@@ -6,9 +6,10 @@
 //
 
 import Foundation
+import SwiftUI
 
 public enum UserLoginStatus {
     case guest
     case pending
-    case active(User)
+    case active
 }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct AuthToken {
+public struct AuthToken: Codable {
     public let userId: String
     public let createdAt: Date
     public let expiredAt: Date

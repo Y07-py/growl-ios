@@ -23,20 +23,17 @@ public enum RouteViewControllerTransitionDirection {
 public struct RouteViewController<Route: Equatable, Screen: View>: UIViewControllerRepresentable {
     private let routeViewModel: RouteViewModel<Route>
     private let hiddenBackButton: Bool
-    private let transitionAnimated: Bool
     private let transitionDirection: RouteViewControllerTransitionDirection
     private let builder: (Route) -> Screen
     
     public init(
         routeViewModel: RouteViewModel<Route>,
         hiddenBackButton: Bool = true,
-        transitionAnimated: Bool = true,
         transitionDirection: RouteViewControllerTransitionDirection = .right,
         @ViewBuilder builder: @escaping (Route) -> Screen
     ) {
         self.routeViewModel = routeViewModel
         self.hiddenBackButton = hiddenBackButton
-        self.transitionAnimated = transitionAnimated
         self.transitionDirection = transitionDirection
         self.builder = builder
     }
@@ -60,18 +57,18 @@ public struct RouteViewController<Route: Equatable, Screen: View>: UIViewControl
             navigationController.pushViewController(hostingController, animated: false)
         }
         
-        routeViewModel.onPush = { route in
+        routeViewModel.onPush = { route, animated in
             let hostingController = RouteViewHostingController(rootView: builder(route))
             hostingController.navigationItem.setHidesBackButton(hiddenBackButton, animated: false)
-            navigationController.pushViewController(hostingController, animated: transitionAnimated)
+            navigationController.pushViewController(hostingController, animated: animated)
         }
         
-        routeViewModel.onPop = { cnt in
+        routeViewModel.onPop = { cnt, animated in
             let count = navigationController.viewControllers.count
             let targetIndex = max(count - cnt - 1, 0)
             if targetIndex < count {
                 let targetVC = navigationController.viewControllers[targetIndex]
-                navigationController.popToViewController(targetVC, animated: transitionAnimated)
+                navigationController.popToViewController(targetVC, animated: animated)
             }
         }
         

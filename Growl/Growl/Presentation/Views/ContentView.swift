@@ -27,6 +27,7 @@ struct ContentView: View {
             .environmentObject(loginViewModel)
             .environmentObject(loginRouteViewModel)
         }
+        .ignoresSafeArea()
     }
 }
 

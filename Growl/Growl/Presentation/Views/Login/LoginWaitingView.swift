@@ -9,13 +9,32 @@ import SwiftUI
 
 struct LoginWaitingView: View {
     @EnvironmentObject private var loginViewModel: LoginViewModel
+    @EnvironmentObject private var loginRouteViewModel: RouteViewModel<LoginRoute>
     
     var body: some View {
         ZStack {
+            Color.mainColor.ignoresSafeArea()
             VStack(alignment: .center) {
-                
+                Image("Growl-icon")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 200, height: 200)
+                Text(.growl)
+                    .font(.system(size: 30, weight: .heavy))
+                    .foregroundStyle(.black)
             }
-            .frame(maxHeight: .infinity, alignment: .top)
+        }
+        .onAppear {
+            Task {
+                await self.loginViewModel.loginStatusCheck { status in
+                    switch status {
+                    case .active:
+                        self.loginRouteViewModel.push(.main, animated: false)
+                    case .guest, .pending:
+                        self.loginRouteViewModel.push(.login, animated: false)
+                    }
+                }
+            }
         }
     }
 }

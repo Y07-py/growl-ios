@@ -11,21 +11,21 @@ import Combine
 public class RouteViewModel<Route: Equatable>: ObservableObject {
     var routes: [Route] = [Route]()
     
-    public var onPush: ((Route) -> Void)?
-    public var onPop: ((Int) -> Void)?
+    public var onPush: ((Route, Bool) -> Void)?
+    public var onPop: ((Int, Bool) -> Void)?
     
     public init(route: Route) {
         routes.append(route)
     }
     
-    public func push(_ route: Route) {
+    public func push(_ route: Route, animated: Bool) {
         routes.append(route)
-        onPush?(route)
+        onPush?(route, animated)
     }
     
-    public func pop(_ cnt: Int) {
+    public func pop(_ cnt: Int, animated: Bool) {
         guard cnt >= 0, cnt <= routes.count else { return }
         routes.removeLast(cnt)
-        onPop?(cnt)
+        onPop?(cnt, animated)
     }
 }

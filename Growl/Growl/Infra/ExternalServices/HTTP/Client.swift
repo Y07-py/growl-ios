@@ -18,6 +18,8 @@ public class HttpClient {
     private var resourceTimeout: Double
     /// The maximum number of retry attempts for failed requests.
     private let retryLimit: UInt
+    /// Singleton
+    static let shared = HttpClient()
     
     /// Initializes a new HttpClient instance.
     /// - Parameters:
@@ -36,6 +38,20 @@ public class HttpClient {
         self.resourceTimeout = resourceTimeout
         self.retryLimit = retryLimit
     }
+    
+    /// Private instance for singleton.
+    private init() {
+        let config = URLSessionConfiguration.af.default
+        config.timeoutIntervalForRequest = 15
+        config.timeoutIntervalForResource = 30
+        
+        let retryPolicy = RetryPolicy(retryLimit: 3)
+        
+        self.session = Session(configuration: config, interceptor: retryPolicy)
+        self.requestTimeout = 15
+        self.resourceTimeout = 30
+        self.retryLimit = 3
+    }
 }
 
 extension HttpClient {
@@ -44,20 +60,20 @@ extension HttpClient {
     ///   - url: The target URL string.
     ///   - method: The HTTP method to use.
     ///   - paramaters: Optional parameters for the request.
-    /// - Returns: A Result containing the decoded object or an AFError.
-    private func execute<T: Decodable>(url: String, method: HTTPMethod, paramaters: Parameters? = nil) async -> Result<T, AFError> {
-        guard let url = URL(string: url) else {
-            return .failure(AFError.invalidURL(url: url))
+    /// - Returns: A Result containing the decoded object or an HttpError.
+    private func execute<T: Decodable>(url: String, method: HTTPMethod, paramaters: Parameters? = nil) async -> Result<T, HttpError> {
+        guard let targetURL = URL(string: url) else {
+            return .failure(.invalidURL(url: url))
         }
         
-        let task = self.session.request(url, method: method, parameters: paramaters).validate().serializingDecodable(T.self)
+        let task = self.session.request(targetURL, method: method, parameters: paramaters).validate().serializingDecodable(T.self)
         let response = await task.response
         
         switch response.result {
         case .success(let value):
             return .success(value)
         case .failure(let error):
-            return .failure(error)
+            return .failure(HttpError(error: error))
         }
     }
     
@@ -66,20 +82,20 @@ extension HttpClient {
     ///   - url: The target URL string.
     ///   - method: The HTTP method to use.
     ///   - paramaters: Optional parameters for the request.
-    /// - Returns: A Result indicating success or an AFError.
-    private func execute(url: String, method: HTTPMethod, paramaters: Parameters? = nil) async -> Result<(), AFError> {
-        guard let url = URL(string: url) else {
-            return .failure(AFError.invalidURL(url: url))
+    /// - Returns: A Result indicating success or an HttpError.
+    private func execute(url: String, method: HTTPMethod, paramaters: Parameters? = nil) async -> Result<(), HttpError> {
+        guard let targetURL = URL(string: url) else {
+            return .failure(.invalidURL(url: url))
         }
         
-        let task = self.session.request(url, method: method, parameters: paramaters).validate().serializingData()
+        let task = self.session.request(targetURL, method: method, parameters: paramaters).validate().serializingData()
         let response = await task.response
         
         switch response.result {
         case .success:
             return .success(())
         case .failure(let error):
-            return .failure(error)
+            return .failure(HttpError(error: error))
         }
     }
     
@@ -87,8 +103,8 @@ extension HttpClient {
     /// - Parameters:
     ///   - url: The target URL string.
     ///   - paramaters: Optional query parameters.
-    /// - Returns: A Result containing the decoded object or an AFError.
-    public func get<T: Decodable>(url: String, paramaters: Parameters? = nil) async -> Result<T, AFError> {
+    /// - Returns: A Result containing the decoded object or an HttpError.
+    public func get<T: Decodable>(url: String, paramaters: Parameters? = nil) async -> Result<T, HttpError> {
         return await self.execute(url: url, method: .get, paramaters: paramaters)
     }
     
@@ -96,8 +112,12 @@ extension HttpClient {
     /// - Parameters:
     ///   - url: The target URL string.
     ///   - paramaters: Optional request body parameters.
-    /// - Returns: A Result indicating success or an AFError.
-    public func post(url: String, paramaters: Parameters? = nil) async -> Result<(), AFError> {
+    /// - Returns: A Result indicating success or an HttpError.
+    public func post(url: String, paramaters: Parameters? = nil) async -> Result<(), HttpError> {
+        return await self.execute(url: url, method: .post, paramaters: paramaters)
+    }
+    
+    public func post<T: Decodable>(url: String, paramaters: Parameters? = nil) async -> Result<T, HttpError> {
         return await self.execute(url: url, method: .post, paramaters: paramaters)
     }
     
@@ -105,8 +125,8 @@ extension HttpClient {
     /// - Parameters:
     ///   - url: The target URL string.
     ///   - paramaters: Optional query or body parameters.
-    /// - Returns: A Result indicating success or an AFError.
-    public func delete(url: String, paramaters: Parameters? = nil) async -> Result<(), AFError> {
+    /// - Returns: A Result indicating success or an HttpError.
+    public func delete(url: String, paramaters: Parameters? = nil) async -> Result<(), HttpError> {
         return await self.execute(url: url, method: .delete, paramaters: paramaters)
     }
     
@@ -114,8 +134,8 @@ extension HttpClient {
     /// - Parameters:
     ///   - url: The target URL string.
     ///   - paramaters: Optional request body parameters.
-    /// - Returns: A Result indicating success or an AFError.
-    public func put(url: String, paramaters: Parameters? = nil) async -> Result<(), AFError> {
+    /// - Returns: A Result indicating success or an HttpError.
+    public func put(url: String, paramaters: Parameters? = nil) async -> Result<(), HttpError> {
         return await self.execute(url: url, method: .put, paramaters: paramaters)
     }
     
@@ -123,8 +143,8 @@ extension HttpClient {
     /// - Parameters:
     ///   - url: The target URL string.
     ///   - paramaters: Optional request body parameters.
-    /// - Returns: A Result indicating success or an AFError.
-    public func patch(url: String, paramaters: Parameters? = nil) async -> Result<(), AFError> {
+    /// - Returns: A Result indicating success or an HttpError.
+    public func patch(url: String, paramaters: Parameters? = nil) async -> Result<(), HttpError> {
         return await self.execute(url: url, method: .patch, paramaters: paramaters)
     }
 }

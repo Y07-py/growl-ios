@@ -10,7 +10,7 @@ import SwiftUI
 
 extension Color {
     static var mainColor: Color {
-        guard let uiColor = UIColor(hex: "FF3737", alpha: 1.0) else { return .clear }
+        guard let uiColor = UIColor(hex: "E76F2E", alpha: 1.0) else { return .clear }
         return self.init(uiColor: uiColor)
     }
     

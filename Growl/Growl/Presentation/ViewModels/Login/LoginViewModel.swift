@@ -7,15 +7,24 @@
 
 import SwiftUI
 import Combine
+import os
 
-public enum LoginRoute: Equatable {
-    case login
-    case main
-    case waiting
+@MainActor
+class LoginViewModel: ObservableObject {
+    @Published var loginStatus: LoginStatusDTO = .pending
+    @Published var identity: UserIdentityDTO? = nil
+    
+    private let checkLoginStatusUseCase = CheckLoginStatusInteractor()
+    private let logger: os.Logger = os.Logger(subsystem: "com.growl.app", category: "LoginViewModel")
 }
 
-class LoginViewModel: ObservableObject {
-    @Published var userName: String = ""
-    @Published var mailAddress: String = ""
-    @Published var phoneNumber: String = ""
+extension LoginViewModel {
+    /// Checks the current login status using the application layer.
+    public func loginStatusCheck(completion: @escaping (LoginStatusDTO) -> Void) async {
+        let (status, identity) = await checkLoginStatusUseCase.execute()
+        
+        self.loginStatus = status
+        self.identity = identity
+        completion(status)
+    }
 }
