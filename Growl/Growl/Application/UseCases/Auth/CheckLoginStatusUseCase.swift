@@ -16,28 +16,22 @@ public protocol CheckLoginStatusUseCase {
 }
 
 /// Implementation of the CheckLoginStatusUseCase.
-public final class CheckLoginStatusInteractor: CheckLoginStatusUseCase {
+
+public final class CheckLoginStatusInteractor {
     private let httpClient: HttpClient = HttpClient.shared
     private let keychain: KeychainClient = KeychainClient.shared
     private let logger: os.Logger = os.Logger(subsystem: "com.growl.app", category: "CheckLoginStatusInteractor")
-    
+}
+
+extension CheckLoginStatusInteractor: CheckLoginStatusUseCase {
     public func execute() async -> (LoginStatusDTO, UserIdentityDTO?) {
         // 1. Check if session exists in Keychain
         guard let session = self.getSessionFromKeyChain() else {
             return (.guest, nil)
         }
         
-        // 2. Convert session to Parameters ([String: Any])
-        let parameters: [String: Any]? = {
-            guard let data = try? JSONEncoder().encode(session),
-                  let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-                return nil
-            }
-            return dict
-        }()
-        
-        // 3. Call API to verify status with the backend
-        let statusResult: Result<LoginStatusResponse, HttpError> = await httpClient.post(url: AuthEndpoint.loginStatus, paramaters: parameters)
+        // 2. Call API to verify status with the backend
+        let statusResult: Result<LoginStatusResponse, HttpError> = await httpClient.post(url: AuthEndpoint.loginStatus, paramaters: session.asParameters())
         
         switch statusResult {
         case .success(let response):

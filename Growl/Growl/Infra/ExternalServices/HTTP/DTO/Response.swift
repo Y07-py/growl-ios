@@ -17,3 +17,17 @@ public struct LoginStatusResponse: Codable {
         case identity
     }
 }
+
+public struct SessionResponse: Codable {
+    public let session: AuthSessionDTO
+}
+
+public struct SignUpResponse: Codable {
+    public let sessionId: String?
+    public let message: String
+    
+    enum CodingKeys: String, CodingKey {
+        case sessionId = "session_id"
+        case message
+    }
+}

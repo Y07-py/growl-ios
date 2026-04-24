@@ -15,6 +15,8 @@ class LoginViewModel: ObservableObject {
     @Published var identity: UserIdentityDTO? = nil
     
     private let checkLoginStatusUseCase = CheckLoginStatusInteractor()
+    private let sessionUseCase = SessionInteractor()
+    private let keyChain = KeychainClient.shared
     private let logger: os.Logger = os.Logger(subsystem: "com.growl.app", category: "LoginViewModel")
 }
 
@@ -26,5 +28,25 @@ extension LoginViewModel {
         self.loginStatus = status
         self.identity = identity
         completion(status)
+    }
+    
+    public func loginRequest(userName: String, method: AuthMethodDTO, completion: @escaping () -> Void) async {
+        do {
+            if let identity = identity {
+                
+            } else {
+                let request = SignUpRequest(userName: userName, method: method)
+                let response = try await sessionUseCase.signUp(request: request)
+                if let sessionId = response.sessionId {
+                    try keyChain.save(sessionId, for: "session_id")
+                }
+            }
+        } catch let error {
+            
+        }
+    }
+    
+    public func sendOTP(otp: String) async {
+        
     }
 }

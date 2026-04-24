@@ -9,7 +9,7 @@ import SwiftUI
 
 struct LoginWaitingView: View {
     @EnvironmentObject private var loginViewModel: LoginViewModel
-    @EnvironmentObject private var loginRouteViewModel: RouteViewModel<LoginRoute>
+    @EnvironmentObject private var loginRouteViewModel: RouteViewModel<StartRoute>
     
     var body: some View {
         ZStack {
@@ -26,6 +26,7 @@ struct LoginWaitingView: View {
         }
         .onAppear {
             Task {
+                try await Task.sleep(nanoseconds: 2_000_000_000)
                 await self.loginViewModel.loginStatusCheck { status in
                     switch status {
                     case .active:
