@@ -1,5 +1,5 @@
 {
-  "originHash" : "e8f130fe30ac6cdc940ef06ee1e8535e9f46ffee6aeead1722b9525562f6ce08",
+  "originHash" : "574ffc477bb854e43c80f88ea15a752dba094d78da86f7302a5f2d1bc334cbd2",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -8,6 +8,15 @@
       "state" : {
         "revision" : "e938f8c66708e7352fc7e3512647fa54255b267a",
         "version" : "5.11.2"
+      }
+    },
+    {
+      "identity" : "libphonenumber-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/iziz/libPhoneNumber-iOS.git",
+      "state" : {
+        "revision" : "89d037a5988c0894c30a92d8f0fdd848b48e23e0",
+        "version" : "1.4.0"
       }
     }
   ],

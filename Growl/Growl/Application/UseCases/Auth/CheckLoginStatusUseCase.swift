@@ -21,6 +21,8 @@ public final class CheckLoginStatusInteractor {
     private let httpClient: HttpClient = HttpClient.shared
     private let keychain: KeychainClient = KeychainClient.shared
     private let logger: os.Logger = os.Logger(subsystem: "com.growl.app", category: "CheckLoginStatusInteractor")
+    
+    static let shared: CheckLoginStatusInteractor = .init()
 }
 
 extension CheckLoginStatusInteractor: CheckLoginStatusUseCase {
@@ -31,7 +33,8 @@ extension CheckLoginStatusInteractor: CheckLoginStatusUseCase {
         }
         
         // 2. Call API to verify status with the backend
-        let statusResult: Result<LoginStatusResponse, HttpError> = await httpClient.post(url: AuthEndpoint.loginStatus, paramaters: session.asParameters())
+        let statusResult: Result<LoginStatusResponse, HttpError> = await httpClient.post(url: AuthEndpoint.loginStatus,
+                                                                                         paramaters: session.asParamaters())
         
         switch statusResult {
         case .success(let response):

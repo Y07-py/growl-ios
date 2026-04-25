@@ -18,7 +18,7 @@ public struct LoginStatusResponse: Codable {
     }
 }
 
-public struct SessionResponse: Codable {
+public struct SignInResponse: Codable {
     public let session: AuthSessionDTO
 }
 

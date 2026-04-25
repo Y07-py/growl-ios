@@ -66,7 +66,11 @@ extension HttpClient {
             return .failure(.invalidURL(url: url))
         }
         
-        let task = self.session.request(targetURL, method: method, parameters: paramaters).validate().serializingDecodable(T.self)
+        let encoding: ParameterEncoding = (method == .get) ? URLEncoding.default : JSONEncoding.default
+        let task = self.session
+            .request(targetURL, method: method, parameters: paramaters, encoding: encoding)
+            .validate()
+            .serializingDecodable(T.self)
         let response = await task.response
         
         switch response.result {
@@ -88,7 +92,11 @@ extension HttpClient {
             return .failure(.invalidURL(url: url))
         }
         
-        let task = self.session.request(targetURL, method: method, parameters: paramaters).validate().serializingData()
+        let encoding: ParameterEncoding = (method == .get) ? URLEncoding.default : JSONEncoding.default
+        let task = self.session
+            .request(targetURL, method: method, parameters: paramaters, encoding: encoding)
+            .validate()
+            .serializingData()
         let response = await task.response
         
         switch response.result {

@@ -14,6 +14,9 @@ struct LoginView: View {
     @State private var authMethod: AuthMethodDTO = .email
     @State private var userName: String = ""
     @State private var userNameAlert: Bool = false
+    @State private var selectedCountry: CountryDTO?
+    
+    @FocusState private var userNameFocus: Bool
     
     var body: some View {
         ZStack {
@@ -39,6 +42,24 @@ struct LoginView: View {
                 .padding(.horizontal, 24)
             }
             .frame(maxHeight: .infinity, alignment: .top)
+            .onAppear {
+                if selectedCountry == nil {
+                    if let japan = loginViewModel.dialCountries.first(where: { $0.id == "JP" }) {
+                        selectedCountry = japan
+                    } else {
+                        selectedCountry = loginViewModel.dialCountries.first
+                    }
+                }
+            }
+            .alert("入力エラー", isPresented: $userNameAlert) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                if authMethod == .email {
+                    Text(.usernameAlertWithEmail)
+                } else if authMethod == .phoneNumber {
+                    Text(.usernameAlertWithPhonenumber)
+                }
+            }
         }
     }
     
@@ -65,8 +86,35 @@ struct LoginView: View {
             Group {
                 if authMethod == .email {
                     TextField(.authMethodPlaceholderEmail, text: $userName)
+                        .focused($userNameFocus)
                 } else {
-                    TextField(.authMethodPlaceholderPhonenumber, text: $userName)
+                    HStack(spacing: 12) {
+                        Menu {
+                            Picker("Country", selection: $selectedCountry) {
+                                ForEach(loginViewModel.dialCountries) { country in
+                                    Text("\(country.emoji) \(country.dialCode)").tag(Optional(country))
+                                }
+                            }
+                        } label: {
+                            HStack(spacing: 4) {
+                                Text(selectedCountry?.emoji ?? "🇯🇵")
+                                Text(selectedCountry?.dialCode ?? "+81")
+                                    .font(.system(size: 16))
+                                Image(systemName: "chevron.down")
+                                    .font(.system(size: 10))
+                                    .foregroundStyle(.gray)
+                            }
+                            .foregroundStyle(.black)
+                        }
+                        
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(width: 1, height: 24)
+                        
+                        TextField(.authMethodPlaceholderPhonenumber, text: $userName)
+                            .focused($userNameFocus)
+                            .keyboardType(.phonePad)
+                    }
                 }
             }
             .padding(.horizontal, 16)
@@ -140,7 +188,27 @@ struct LoginView: View {
                 }
                 return
             }
+            if authMethod == .phoneNumber {
+                guard let selectedCountry = selectedCountry else { return }
+                userName = loginViewModel.validationPhoneNumber(userName: userName, country: selectedCountry)
+                if userName.isEmpty {
+                    withAnimation {
+                        self.userNameAlert.toggle()
+                    }
+                    return
+                }
+            }
             
+            self.userNameFocus.toggle()
+            Task {
+                await loginViewModel.loginRequest(userName: userName, method: authMethod) { isSuccess in
+                    if isSuccess {
+                        loginRouteViewModel.push(.otp, animated: true)
+                    } else {
+                        
+                    }
+                }
+            }
         }) {
             HStack {
                 Spacer()

@@ -10,12 +10,13 @@ import SwiftUI
 
 struct LoginRouteView: View {
     @EnvironmentObject private var loginViewModel: LoginViewModel
+    @EnvironmentObject private var startRouteViewModel: RouteViewModel<StartRoute>
     
-    @StateObject private var routeViewModel: RouteViewModel<LoginRoute> = .init(route: .login)
+    @StateObject private var loginRouteViewModel: RouteViewModel<LoginRoute> = .init(route: .login)
     
     var body: some View {
         ZStack {
-            RouteViewController(routeViewModel: routeViewModel) { route in
+            RouteViewController(routeViewModel: loginRouteViewModel, transitionDirection: .left) { route in
                 switch route {
                 case .login:
                     LoginView()
@@ -23,7 +24,8 @@ struct LoginRouteView: View {
                     LoginOTPView()
                 }
             }
-            .environmentObject(routeViewModel)
+            .environmentObject(loginRouteViewModel)
+            .environmentObject(startRouteViewModel)
             .environmentObject(loginViewModel)
         }
         .ignoresSafeArea()

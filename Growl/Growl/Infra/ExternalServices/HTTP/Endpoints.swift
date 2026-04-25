@@ -8,15 +8,16 @@
 import Foundation
 
 public enum API {
-    static let baseEndpoint = "https://unimpairable-preevolutional-normand.ngrok-free.de"
+    static let baseEndpoint = "https://unimpairable-preevolutional-normand.ngrok-free.dev"
     
     enum Health {
         static let health = baseEndpoint + "/health"
     }
     
     enum Auth {
-        static let signUp = baseEndpoint + "/api/v1/auth/sign_up"
-        static let signIn = baseEndpoint + "/api/v1/auth/sign_in"
+        static let signUp = baseEndpoint + "/api/v1/auth/signup"
+        static let signIn = baseEndpoint + "/api/v1/auth/signin"
+        static let signOut = baseEndpoint + "/api/v1/auth/signout"
         static let loginStatus = baseEndpoint + "/api/v1/auth/login_status"
     }
 }
